@@ -98,19 +98,38 @@ local function isAnyDownFor(inputSourcesList, keycode, seconds)
     return false
 end
 
+local function isAnyPressed(inputSourcesList, keycode, ...)
+    for _, inputSource in ipairs(inputSourcesList, {...}) do
+        if inputSource:isPressed(keycode) then
+            return true
+        end
+    end
+    return false
+end
+
+local function isAnyReleased(inputSourcesList, keycode, ...)
+    for _, inputSource in ipairs(inputSourcesList) do
+        if inputSource:isReleased(keycode, {...}) then
+            return true
+        end
+    end
+    return false
+end
+
 Input.joysticks = {}
 Input.gamepads = {}
 for i, joystick in ipairs(love.joystick.getJoysticks()) do
     if joystick:isGamepad() then
         Input.gamepads[i] = InputSource:new(joystick)
-        Input.gamepads.isAnyDown = isAnyDown
-        Input.gamepads.isAnyDownFor = isAnyDownFor
     else
         Input.joysticks[i] = InputSource:new(joystick)
-        Input.joysticks.isAnyDown = isAnyDown
-        Input.joysticks.isAnyDownFor = isAnyDownFor
     end
 end
+
+Input.gamepads.isAnyDown, Input.joysticks.isAnyDown = isAnyDown, isAnyDown
+Input.gamepads.isAnyDownFor, Input.joysticks.isAnyDownFor = isAnyDownFor, isAnyDownFor
+Input.gamepads.isAnyPressed, Input.gamepads.isAnyPressed = isAnyPressed, isAnyPressed
+Input.gamepads.isAnyReleased, Input.gamepads.isAnyReleased = isAnyReleased, isAnyReleased
 --------------------------------------------------------------------------------
 
 --------------------                  мышь                  --------------------
