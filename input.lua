@@ -100,7 +100,7 @@ end
 
 local function isAnyPressed(inputSourcesList, keycode, ...)
     for _, inputSource in ipairs(inputSourcesList, {...}) do
-        if inputSource:isPressed(keycode) then
+        if inputSource:isPressed(keycode, {...}) then
             return true
         end
     end
