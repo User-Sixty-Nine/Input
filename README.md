@@ -93,8 +93,19 @@ function love.update(dt)
     Input:update(dt)
 end
 ```
-<br>
-## Кроме того, вы можете обращаться к устройствам ввода напрямую при необходимости:
+Различие между Input.gamepads и Input.joysticks, заключается в том, что Input.joysticks содержит все джойстики независимо от их типа (геймпад, джойстик, гитара и т.д.), тогда как Input.gamepads содержит только геймпады:
+```lua
+for i, joystick in ipairs(love.joystick.getJoysticks()) do
+    --Input.joysticks contains all joysticks
+    Input.joysticks[i] = InputSource:new(joystick)
+    if joystick:isGamepad() then
+        -- but Input.gamepads contains only gamepads
+        Input.gamepads[i] = Input.joysticks[i]
+    end
+end
+```
+<br><br>
+### Кроме того, вы можете обращаться к устройствам ввода напрямую при необходимости:
 
 ```lua
 function love.update(dt)
