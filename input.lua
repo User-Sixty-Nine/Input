@@ -119,10 +119,9 @@ end
 Input.joysticks = {}
 Input.gamepads = {}
 for i, joystick in ipairs(love.joystick.getJoysticks()) do
+    Input.joysticks[i] = InputSource:new(joystick)
     if joystick:isGamepad() then
-        Input.gamepads[i] = InputSource:new(joystick)
-    else
-        Input.joysticks[i] = InputSource:new(joystick)
+        Input.gamepads[i] = Input.joysticks[i]
     end
 end
 
