@@ -8,6 +8,8 @@ require 'your/path/to/input'
 ...
 
 function love.update(dt)
+    ...
+
     Input:update(dt)
 end
 ```
