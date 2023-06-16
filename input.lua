@@ -6,7 +6,7 @@ InputSource.keyStates = {}
 InputSource.keyPressedStates = {}
 
 function InputSource:isDown(keycode, ...)
-    if self.__index.isDown(keycode) then
+    if self.source.isDown(keycode) then
         self.keyStates[keycode] = true
         return true
     else
@@ -65,8 +65,8 @@ function InputSource:new(source)
     for k, v in pairs(self) do
         obj[k] = v
     end
-    obj.__index = source
-    return obj
+    obj.source = source
+    return setmetatable(obj, {__index = source})
 end
 --------------------------------------------------------------------------------
 
