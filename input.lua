@@ -32,11 +32,13 @@ InputSource.keyPressedStates = {}
 
 function InputSource:isDown(keycode, ...)
     if 
-        (self.type == 'gamepad' and 
-            (keycode == 'lefttrigger' and self:getLTPos() > 0) or
-            (keycode == 'righttrigger' and self:getRTPos() > 0) or
-            (keycode ~= 'lefttrigger' and keycode ~= 'righttrigger' and self.source:isGamepadDown(keycode))
-        ) or
+        self.type == 'gamepad' and 
+            (
+                (keycode == 'lefttrigger' and self:getLTPos() > 0) or
+                (keycode == 'righttrigger' and self:getRTPos() > 0) or
+                (keycode ~= 'lefttrigger' and keycode ~= 'righttrigger' and self.source:isGamepadDown(keycode))
+            )
+         or
         (self.type == 'other' and self.source.isDown(keycode))
     then
         self.keyStates[keycode] = true
