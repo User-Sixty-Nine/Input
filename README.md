@@ -105,3 +105,5 @@ function love.update(dt)
     Input:update(dt)
 end
 ```
+<br><br>
+###### Данное программное обеспечение распространяется по модифицированной лицензии BSD (new BSD).
