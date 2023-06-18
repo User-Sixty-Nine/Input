@@ -66,15 +66,15 @@ function love.update(dt)
 end
 ```
 <br><br>
-## Геймпады и джойстики
-Вы можете использовать для джойстиков методы проверки состояния клавиш:
+## Геймпады
+Вы можете использовать для геймпадов методы проверки состояния клавиш:
 ```lua
 function love.update(dt)
-    if Input.gamepads[1]:isDown(1) then
-        print 'gamepad 1 button 1 is down'
+    if Input.gamepads[1]:isDown('dpup') then
+        print 'gamepad 1 button up on dpad is down'
     end
-    if Input.joysticks[1]:isDownFor(1, 0.25) then
-        print 'joystick 1 button 1 is down for 0.25 seconds'
+    if Input.gamepads[1]:isDownFor('lefttrigger', 0.25) then
+        print 'gamepad left trigger is down for 0.25 seconds'
     end
     -- isPressed and isReleased
     Input:update(dt)
@@ -93,24 +93,15 @@ function love.update(dt)
     Input:update(dt)
 end
 ```
-Различие между Input.gamepads и Input.joysticks, заключается в том, что Input.joysticks содержит все джойстики независимо от их типа (геймпад, джойстик, гитара и т.д.), тогда как Input.gamepads содержит только геймпады:
-```lua
-for i, joystick in ipairs(love.joystick.getJoysticks()) do
-    --Input.joysticks contains all joysticks
-    Input.joysticks[i] = InputSource:new(joystick)
-    if joystick:isGamepad() then
-        -- but Input.gamepads contains only gamepads
-        Input.gamepads[i] = Input.joysticks[i]
-    end
-end
-```
-<br><br>
-### Кроме того, вы можете обращаться к устройствам ввода напрямую при необходимости:
-
+Вот так можно получить значение стиков и триггеров:
 ```lua
 function love.update(dt)
-    print (Input.mouse == love.mouse) -- false, but
-    print (Input.mouse.getX == love.mouse.getX) -- true
+    print ('left trigger: ' .. Input.gamepads[1]:getLTPos())
+    print ('right trigger: ' .. Input.gamepads[1]:getRTPos())
+
+    print ('right stick x: ' .. Input.gamepads[1]:getRSPos().x)
+    print ('left stick y: ' .. Input.gamepads[1]:getLSPos().y)
+
     Input:update(dt)
 end
 ```

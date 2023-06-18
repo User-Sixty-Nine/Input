@@ -6,14 +6,21 @@ InputSource.keyStates = {}
 InputSource.keyPressedStates = {}
 
 function InputSource:isDown(keycode, ...)
-    if self.source.isDown(keycode) then
+    if 
+        (self.type == 'gamepad' and 
+            (keycode == 'lefttrigger' and self:getLTPos() > 0) or
+            (keycode == 'righttrigger' and self:getRTPos() > 0) or
+            (keycode ~= 'lefttrigger' and keycode ~= 'righttrigger' and self.source:isGamepadDown(keycode))
+        ) or
+        (self.type == 'other' and self.source.isDown(keycode))
+    then
         self.keyStates[keycode] = true
         return true
     else
         self.keyStates[keycode] = false
     end
     for _, key in ipairs({...}) do
-        if self.__index.isDown(key) then
+        if self:isDown(key) then
             return true
         end
     end
@@ -60,13 +67,14 @@ function InputSource:isDownFor(keycode, seconds)
     return false
 end
 
-function InputSource:new(source)
+function InputSource:new(source, type)
     local obj = {}
     for k, v in pairs(self) do
         obj[k] = v
     end
     obj.source = source
-    return setmetatable(obj, {__index = source})
+    obj.type = type or 'other'
+    return obj
 end
 --------------------------------------------------------------------------------
 
@@ -74,9 +82,12 @@ local Input = {}
 
 Input.keyboard = InputSource:new(love.keyboard)
 
---------------------                джойстики               --------------------
-local function isAnyDown(inputSourcesList, keycode, ...)
-    for _, inputSource in ipairs(inputSourcesList) do
+--------------------                геймпады               --------------------
+Input.gamepads = {}
+Input.gamepads.defaultSensitivity = 0
+
+function Input.gamepads:isAnyDown(keycode, ...)
+    for _, inputSource in ipairs(self.list) do
         if inputSource:isDown(keycode) then
             return true
         end
@@ -89,8 +100,8 @@ local function isAnyDown(inputSourcesList, keycode, ...)
     return false
 end
 
-local function isAnyDownFor(inputSourcesList, keycode, seconds)
-    for _, inputSource in ipairs(inputSourcesList) do
+function Input.gamepads:isAnyDownFor(keycode, seconds)
+    for _, inputSource in ipairs(self.list) do
         if inputSource:isDownFor(keycode, seconds) then
             return true
         end
@@ -98,8 +109,8 @@ local function isAnyDownFor(inputSourcesList, keycode, seconds)
     return false
 end
 
-local function isAnyPressed(inputSourcesList, keycode, ...)
-    for _, inputSource in ipairs(inputSourcesList, {...}) do
+function Input.gamepads:isAnyPressed(keycode, ...)
+    for _, inputSource in ipairs(self.list) do
         if inputSource:isPressed(keycode, {...}) then
             return true
         end
@@ -107,8 +118,8 @@ local function isAnyPressed(inputSourcesList, keycode, ...)
     return false
 end
 
-local function isAnyReleased(inputSourcesList, keycode, ...)
-    for _, inputSource in ipairs(inputSourcesList) do
+function Input.gamepads:isAnyReleased(keycode, ...)
+    for _, inputSource in ipairs(self.list) do
         if inputSource:isReleased(keycode, {...}) then
             return true
         end
@@ -116,19 +127,18 @@ local function isAnyReleased(inputSourcesList, keycode, ...)
     return false
 end
 
-Input.joysticks = {}
-Input.gamepads = {}
 for i, joystick in ipairs(love.joystick.getJoysticks()) do
-    Input.joysticks[i] = InputSource:new(joystick)
     if joystick:isGamepad() then
-        Input.gamepads[i] = Input.joysticks[i]
+        local gamepad = InputSource:new(joystick, 'gamepad')
+        function gamepad:getLTPos() return self.source:getAxis(5) end
+        function gamepad:getRTPos() return self.source:getAxis(6) end
+        function gamepad:getLSPos() return {x = self.source:getAxis(1), y = self.source:getAxis(2)} end
+        function gamepad:getRSPos() return {x = self.source:getAxis(3), y = self.source:getAxis(4)} end
+        table.insert(Input.gamepads, gamepad)
     end
 end
 
-Input.gamepads.isAnyDown, Input.joysticks.isAnyDown = isAnyDown, isAnyDown
-Input.gamepads.isAnyDownFor, Input.joysticks.isAnyDownFor = isAnyDownFor, isAnyDownFor
-Input.gamepads.isAnyPressed, Input.gamepads.isAnyPressed = isAnyPressed, isAnyPressed
-Input.gamepads.isAnyReleased, Input.gamepads.isAnyReleased = isAnyReleased, isAnyReleased
+Input.gamepads.list = Input.gamepads;
 --------------------------------------------------------------------------------
 
 --------------------                  мышь                  --------------------
