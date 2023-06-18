@@ -55,11 +55,12 @@ function InputSource:isDown(keycode, ...)
 end
 
 function InputSource:isPressed(keycode, ...)
-    if not self.keyStates[keycode] and self:isDown(keycode) then
+    local previousState = self.keyStates[keycode]
+    if self:isDown(keycode) and not previousState then
         return true
     end
     for _, key in ipairs({...}) do
-        if not self.keyStates[keycode] and self:isDown(keycode) then
+        if self:isPressed(key) then
             return true
         end
     end
@@ -67,11 +68,12 @@ function InputSource:isPressed(keycode, ...)
 end
 
 function InputSource:isReleased(keycode, ...)
-    if self.keyStates[keycode] and not self:isDown(keycode) then
+    local previousState = self.keyStates[keycode]
+    if not self:isDown(keycode) and previousState then
         return true
     end
     for _, key in ipairs({...}) do
-        if self.keyStates[keycode] and not self:isDown(keycode) then
+        if self:isReleased(key) then
             return true
         end
     end
