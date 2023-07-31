@@ -23,10 +23,12 @@ ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ]]--
---------------------   Общий для всех источником ввода код  --------------------
+--------------------   Общий для всех источников ввода код  --------------------
 local InputSource = {}
 
 InputSource.keyStates = {}
+
+InputSource.previousKeyStates = {}
 
 InputSource.keyPressedStates = {}
 
@@ -55,8 +57,7 @@ function InputSource:isDown(keycode, ...)
 end
 
 function InputSource:isPressed(keycode, ...)
-    local previousState = self.keyStates[keycode]
-    if self:isDown(keycode) and not previousState then
+    if self:isDown(keycode) and not self.previousKeyStates[keycode] then
         return true
     end
     for _, key in ipairs({...}) do
@@ -68,8 +69,7 @@ function InputSource:isPressed(keycode, ...)
 end
 
 function InputSource:isReleased(keycode, ...)
-    local previousState = self.keyStates[keycode]
-    if not self:isDown(keycode) and previousState then
+    if not self:isDown(keycode) and self.previousKeyStates[keycode] then
         return true
     end
     for _, key in ipairs({...}) do
@@ -94,6 +94,11 @@ function InputSource:isDownFor(keycode, seconds)
         self.keyPressedStates[keycode] = {pressedTime = love.timer.getTime(), interval = seconds, pressed = false}
     end
     return false
+end
+
+function InputSource:update(dt)
+    self.previousKeyStates = self.keyStates
+    self.keyStates = {}
 end
 
 function InputSource:new(source, type)
@@ -250,6 +255,11 @@ end
 
 function Input:update(dt)
     self.mouse:update(dt)
+    self.keyboard:update(dt)
+
+    for _, gamepad in ipairs(self.gamepads) do
+        gamepad:update(dt)
+    end
 end
 
 return Input
