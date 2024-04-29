@@ -56,7 +56,7 @@ function love.update(dt)
     if Input.mouse:isMoved('down') then
         print 'mouse has been moved down'
     end
-    if Input.mouse:isMoved() then
+    if Input.mouse:wheelIsMoved() then
         print 'mouse wheel has been moved in any direction'
     end
     if Input.mouse:wheelIsMoved('down') then
